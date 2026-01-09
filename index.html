@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>SWAN-ERP Professional Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body class="theme-black-white">
+<div class="app-shell">
+    <header class="top-bar">
+        <div class="brand">
+            <img
+                    id="brand-logo"
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='10,70 40,20 60,40 80,30 90,50 70,60 50,80 30,75' fill='%23ffffff' stroke='%23000000' stroke-width='0.5' opacity='0.9'/></svg>"
+                    alt="Swan Logo"
+            />
+            <div>
+                <span style="display:block;font-size:1.05rem">SWAN-ERP</span>
+                <small class="small-muted">Retail & Inventory</small>
+            </div>
+        </div>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <button
+                    id="calendar-btn"
+                    class="btn btn-sm btn-calendar"
+                    title="Today"
+            >
+                <i class="fa fa-calendar"></i>
+            </button>
+            <span
+                    id="clock"
+                    class="header-text"
+            >00:00:00</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+            <span id="role-label" class="header-text">Role: Employee</span>
+
+            <!-- LICENSE STATUS PILL (default unlicensed) -->
+            <span id="license-status-pill" class="license-pill license-unlicensed">
+                Unlicensed
+            </span>
+
+            <button class="btn btn-sm" id="btn-switch-role">Switch Role</button>
+        </div>
+        <button class="btn btn-sm" id="btn-toggle-cust-display">
+            Customer Screen
+        </button>
+        <select id="theme-selector" style="width:auto; padding:4px;">
+            <option value="theme-black-white">Black &amp; White</option>
+            <option value="theme-navy-white">Navy &amp; White</option>
+            <option value="theme-pink-blue">Pink &amp; Blue</option>
+            <option value="theme-blue-yellow">Blue &amp; Yellow</option>
+            <option value="theme-sage-olive">Sage &amp; Olive Green</option>
+            <option value="theme-forest-beige">Forest Green &amp; Beige</option>
+            <option value="theme-terracotta-cream">Terracotta &amp; Cream</option>
+            <option value="theme-dusty-olive">Dusty Rose &amp; Olive</option>
+            <option value="theme-teal-mustard">Teal &amp; Mustard</option>
+            <option value="theme-bright-green-orange">Bright Green &amp; Orange</option>
+            <option value="theme-purple-gold">Purple &amp; Gold</option>
+            <option value="theme-neon-pink">Neon Green &amp; Pink</option>
+            <!-- DARK THEMES -->
+            <option value="theme-dark-charcoal-cyan">🌙 Dark Charcoal &amp; Cyan</option>
+            <option value="theme-midnight-purple">🌙 Midnight Purple</option>
+            <option value="theme-dark-emerald">🌙 Dark Emerald</option>
+        </select>
+    </header>
+
+    <nav class="ribbon">
+        <button class="ribbon-btn active" data-view="dashboard">
+            <i class="fa fa-chart-pie"></i> Dashboard
+        </button>
+        <div class="ribbon-sep"></div>
+        <button class="ribbon-btn" data-view="pos">
+            <i class="fa fa-cash-register"></i> Sale (POS)
+        </button>
+        <button class="ribbon-btn" data-view="purchase">
+            <i class="fa fa-cart-shopping"></i> Purchase
+        </button>
+        <button class="ribbon-btn" data-view="inventory">
+            <i class="fa fa-boxes"></i> Inventory
+        </button>
+        <div class="ribbon-sep"></div>
+        <button class="ribbon-btn" data-view="ledger">
+            <i class="fa fa-book"></i> Ledger
+        </button>
+        <button class="ribbon-btn" data-view="expenses">
+            <i class="fa fa-receipt"></i> Expenses
+        </button>
+        <button class="ribbon-btn" data-view="banking">
+            <i class="fa fa-university"></i> Banking
+        </button>
+        <button class="ribbon-btn" data-view="hr" id="hr-nav-btn">
+            <i class="fa fa-users"></i> Employees
+        </button>
+        <div class="ribbon-sep"></div>
+        <button class="ribbon-btn" data-view="adv-report">
+            <i class="fa fa-chart-line"></i> Advance Reports
+        </button>
+        <div class="ribbon-sep"></div>
+        <button class="ribbon-btn" data-view="settings" id="settings-nav-btn">
+            <i class="fa fa-cogs"></i> Settings
+        </button>
+    </nav>
+
+    <main class="main-area">
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="view active">
+            <div class="dash-grid">
+                <div class="tile">
+                    <span class="tile-head">Total Sales</span>
+                    <span class="tile-val" id="d-total">0.00</span>
+                    <span class="tile-sub">By date range</span>
+                </div>
+                <div class="tile">
+                    <span class="tile-head">Cash Sales</span>
+                    <span class="tile-val" id="d-cash">0.00</span>
+                </div>
+                <div class="tile">
+                    <span class="tile-head">Credit Sales</span>
+                    <span class="tile-val" id="d-credit" style="color:var(--warn)">0.00</span>
+                </div>
+                <div class="tile">
+                    <span class="tile-head">Online / Bank</span>
+                    <span class="tile-val" id="d-online">0.00</span>
+                </div>
+                <div class="tile tile-hidden-admin">
+                    <span class="tile-head">Gross Profit</span>
+                    <span class="tile-val" id="d-gross" style="color:var(--success)">0.00</span>
+                </div>
+                <div class="tile tile-hidden-admin" style="border-color:var(--danger)">
+                    <span class="tile-head">Net Profit</span>
+                    <span class="tile-val text-danger" id="d-net">0.00</span>
+                </div>
+            </div>
+            <div class="report-bar">
+                <h3
+                        style="color:var(--muted); margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px;"
+                >
+                    REPORTS &amp; ACTIONS
+                </h3>
+                <div class="report-controls">
+                    <div class="field">
+                        <label>From</label>
+                        <input type="date" id="rpt-start" style="width:140px" />
+                    </div>
+                    <div class="field">
+                        <label>To</label>
+                        <input type="date" id="rpt-end" style="width:140px" />
+                    </div>
+                    <div class="field">
+                        <label>Sale</label>
+                        <div class="row">
+                            <button class="btn btn-sm" data-rpt-view="sale">
+                                <i class="fa fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm" data-rpt-print="sale">
+                                <i class="fa fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Profit</label>
+                        <div class="row">
+                            <button class="btn btn-sm" data-rpt-view="profit">
+                                <i class="fa fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm" data-rpt-print="profit">
+                                <i class="fa fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Expense</label>
+                        <div class="row">
+                            <button class="btn btn-sm" data-rpt-view="expense">
+                                <i class="fa fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm" data-rpt-print="expense">
+                                <i class="fa fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Stock</label>
+                        <div class="row">
+                            <button class="btn btn-sm" data-rpt-view="stock">
+                                <i class="fa fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm" data-rpt-print="stock">
+                                <i class="fa fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                    <div style="flex:1"></div>
+                    <div class="field">
+                        <label>&nbsp;</label>
+                        <div class="row">
+                            <button class="btn btn-sm" id="btn-bill-prev">
+                                <i class="fa fa-chevron-left"></i>
+                            </button>
+                            <input
+                                    id="bill-index"
+                                    style="width:170px;text-align:center"
+                                    readonly
+                            />
+                            <button class="btn btn-sm" id="btn-bill-next">
+                                <i class="fa fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>&nbsp;</label>
+                        <div class="row">
+                            <button class="btn btn-sm" id="btn-bill-reprint">
+                                <i class="fa fa-print"></i> Reprint
+                            </button>
+                            <button class="btn btn-sm" id="btn-bill-return">
+                                <i class="fa fa-undo"></i> Return
+                            </button>
+                            <button class="btn btn-sm text-danger" id="btn-bill-delete">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POS -->
+        <div id="pos" class="view">
+            <div class="pos-layout-improved">
+                <!-- LEFT PANEL (NO SCROLL) -->
+                <div class="pos-left-panel-noscroll">
+                    <div class="field">
+                        <label>Customer</label>
+                        <div class="row">
+                            <select id="pos-cust"></select>
+                            <button class="btn btn-primary" id="btn-add-cust">+</button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Customer Type</label>
+                        <select id="pos-cust-type">
+                            <option value="Walk-in">Walk-in</option>
+                            <option value="Regular">Regular</option>
+                            <option value="Wholesale">Wholesale</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Payment Mode</label>
+                        <select id="pos-mode">
+                            <option value="Cash">Cash</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Online">Online/Bank</option>
+                        </select>
+                    </div>
+                    <div class="field hidden" id="pos-bank-row">
+                        <label>Select Bank</label>
+                        <select id="pos-bank"></select>
+                    </div>
+                    <div class="field">
+                        <label>Date</label>
+                        <input type="date" id="pos-date" />
+                    </div>
+                    <div class="field">
+                        <label>Remarks</label>
+                        <textarea id="pos-rem" rows="2"></textarea>
+                    </div>
+                    <div class="pos-action-buttons">
+                        <button class="btn btn-block" id="btn-hold-bill">
+                            <i class="fa fa-pause"></i> HOLD (F6)
+                        </button>
+                        <button class="btn btn-block" id="btn-recall-bill">
+                            <i class="fa fa-play"></i> RECALL (F7)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- MIDDLE PANEL (WITH SCROLL) -->
+                <div class="pos-middle-panel-scroll">
+                    <div class="search-section">
+                        <div class="field">
+                            <label>Scan Barcode / Search Item</label>
+                            <input
+                                    id="pos-search"
+                                    placeholder="Type barcode, item name or code..."
+                                    autofocus
+                            />
+                        </div>
+                        <div class="search-results-container-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th class="text-right">Price</th>
+                                    <th class="text-right">Stock</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="pos-search-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="cart-section">
+                        <div class="field">
+                            <label>Cart Items</label>
+                        </div>
+                        <div class="cart-table-container-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Unit</th>
+                                    <th>Qty</th>
+                                    <th class="text-right">Price</th>
+                                    <th class="text-right">Total</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="pos-body"></tbody>
+                                <tfoot>
+                                <tr>
+                                    <th colspan="4" class="text-right">Cart Subtotal</th>
+                                    <th class="text-right" id="pos-cart-sub-footer">0.00</th>
+                                    <th></th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANEL (NO SCROLL) -->
+                <div class="pos-right-panel-noscroll">
+                    <div class="totals-section-noscroll">
+                        <div class="pos-totals">
+                            <div class="pos-row">
+                                <span>Subtotal</span>
+                                <span id="pos-sub">0.00</span>
+                            </div>
+                            <div class="pos-row-input">
+                                <label>Discount</label>
+                                <input type="number" id="pos-disc" value="0" />
+                            </div>
+                            <div class="pos-row-input">
+                                <label>Tax (%)</label>
+                                <input type="number" id="pos-tax" value="0" />
+                            </div>
+                            <div class="pos-row-input">
+                                <label>Fixed Tax</label>
+                                <input type="number" id="pos-fixed-tax" value="0" />
+                            </div>
+                            <div class="pos-row-input">
+                                <label>Service Chg</label>
+                                <input type="number" id="pos-svc" value="0" />
+                            </div>
+                            <div class="field" style="margin-top:8px;">
+                                <label style="font-size:0.85rem;">Service Type</label>
+                                <select id="pos-svc-type" style="padding:6px;">
+                                    <option value="Labour">Labour Charges</option>
+                                    <option value="Delivery">Delivery Charges</option>
+                                    <option value="Installation">Installation</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Consulting">Consulting</option>
+                                    <option value="Other">Other Service</option>
+                                </select>
+                            </div>
+                            <div class="grand-total" id="pos-net">0.00</div>
+                        </div>
+
+                        <div class="field">
+                            <label>Tendered</label>
+                            <input type="number" id="pos-tend" />
+                        </div>
+                        <div class="pos-row" style="font-size:1.1rem; font-weight:bold; margin-top:10px;">
+                            <span>Change:</span>
+                            <span id="pos-change">0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="pos-final-buttons">
+                        <button class="btn btn-primary btn-block btn-large" id="btn-save-bill">
+                            <i class="fa fa-save"></i> Save Bill
+                        </button>
+                        <button class="btn btn-primary btn-block btn-large" id="btn-save-print-bill">
+                            <i class="fa fa-print"></i> Save &amp; Print
+                        </button>
+                        <button class="btn btn-danger btn-block" id="btn-clear-pos">
+                            CLEAR
+                        </button>
+                        <div class="bill-nav-buttons">
+                            <button class="btn btn-sm" id="btn-pos-prev-bill">
+                                <i class="fa fa-chevron-left"></i> Prev
+                            </button>
+                            <button class="btn btn-sm" id="btn-pos-next-bill">
+                                Next <i class="fa fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PURCHASE -->
+        <div id="purchase" class="view">
+            <div class="purchase-layout">
+                <div class="purchase-left">
+                    <div class="panel">
+                        <div class="field">
+                            <label>Supplier</label>
+                            <div class="row">
+                                <select id="pur-sup"></select>
+                                <button class="btn btn-primary" id="btn-add-sup">+</button>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Date</label>
+                            <input type="date" id="pur-date" />
+                        </div>
+                        <div class="field">
+                            <label>Search Item</label>
+                            <input id="pur-search" placeholder="Type name/code/barcode" />
+                        </div>
+                        <div class="search-results-container-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th class="text-right">Cost</th>
+                                    <th class="text-right">Stock</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="pur-search-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="purchase-right">
+                    <div class="panel">
+                        <div class="field">
+                            <label>Purchase Items</label>
+                        </div>
+                        <div class="purchase-cart-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Qty</th>
+                                    <th class="text-right">Cost</th>
+                                    <th class="text-right">Total</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="pur-body"></tbody>
+                                <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-right">Purchase Total</th>
+                                    <th class="text-right" id="pur-total">0.00</th>
+                                    <th></th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="purchase-actions">
+                            <button class="btn btn-primary btn-block" id="btn-save-purchase">
+                                <i class="fa fa-save"></i> Save Purchase
+                            </button>
+                            <button class="btn btn-block" id="btn-print-purchase-report">
+                                <i class="fa fa-print"></i> Purchase Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVENTORY -->
+        <div id="inventory" class="view">
+            <div class="row" style="margin-bottom:10px; justify-content:space-between">
+                <input id="inv-search" placeholder="Search items..." style="width:300px" />
+                <div style="display:flex;gap:8px;">
+                    <button class="toggle-btn" id="toggle-inv-table">
+                        <i class="fa fa-bars"></i> Toggle Inventory List
+                    </button>
+                    <button class="btn btn-primary" id="btn-new-item">
+                        <i class="fa fa-plus"></i> Add Item
+                    </button>
+                </div>
+            </div>
+            <div class="table-container reports-table-container" id="inv-table-container">
+                <div class="table-scroll">
+                    <table class="table-tight">
+                        <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Loc</th>
+                            <th class="text-right">Cost</th>
+                            <th class="text-right">Price</th>
+                            <th>Base Unit</th>
+                            <th class="text-right">Stock</th>
+                            <th>Act</th>
+                        </tr>
+                        </thead>
+                        <tbody id="inv-body"></tbody>
+                        <tfoot>
+                        <tr>
+                            <th colspan="6" class="text-right">Total Stock Value</th>
+                            <th class="text-right" id="inv-stock-total">0.00</th>
+                            <th></th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEDGER -->
+        <div id="ledger" class="view">
+            <div class="row" style="height:100%; gap:20px;">
+                <!-- CUSTOMERS -->
+                <div class="panel col">
+                    <div class="row" style="align-items:center; border-bottom:1px solid var(--border); padding-bottom:5px;">
+                        <strong style="color:var(--accent-soft)">CUSTOMERS</strong>
+                        <input id="search-cust" placeholder="Search..." style="margin-left:auto; width:150px" />
+                    </div>
+                    <div style="margin-top:10px; margin-bottom:10px; display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
+                        <div style="flex:1;min-width:180px">
+                            <label class="small-muted">Select Customer</label>
+                            <select id="led-credit-cust" style="width:100%"></select>
+                        </div>
+                        <div style="width:140px">
+                            <label class="small-muted">From</label>
+                            <input type="date" id="led-rpt-start" />
+                        </div>
+                        <div style="width:140px">
+                            <label class="small-muted">To</label>
+                            <input type="date" id="led-rpt-end" />
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-primary" style="height:36px" id="btn-view-cust-ledger">
+                                <i class="fa fa-eye"></i> View Ledger
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" style="height:36px" id="btn-print-cust-ledger">
+                                <i class="fa fa-print"></i> Print Ledger
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" style="height:36px" id="btn-ledger-receive">
+                                <i class="fa fa-hand-holding-dollar"></i> Receive Payment
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-primary" id="btn-add-cust-ledger">
+                                + Customer
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container reports-table-container">
+                        <div class="table-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th class="text-right">Balance</th>
+                                    <th>Type</th>
+                                    <th>Act</th>
+                                </tr>
+                                </thead>
+                                <tbody id="led-cust"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUPPLIERS -->
+                <div class="panel col">
+                    <div class="row" style="align-items:center; border-bottom:1px solid var(--border); padding-bottom:5px;">
+                        <strong style="color:var(--warn)">SUPPLIERS</strong>
+                        <input id="search-sup" placeholder="Search..." style="margin-left:auto; width:150px" />
+                        <button class="btn btn-sm" id="btn-add-sup-ledger">+</button>
+                    </div>
+                    <div style="margin-top:10px; margin-bottom:10px; display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
+                        <div style="flex:1;min-width:180px">
+                            <label class="small-muted">Select Supplier</label>
+                            <select id="led-sup-select" style="width:100%"></select>
+                        </div>
+                        <div style="width:140px">
+                            <label class="small-muted">From</label>
+                            <input type="date" id="led-sup-start" />
+                        </div>
+                        <div style="width:140px">
+                            <label class="small-muted">To</label>
+                            <input type="date" id="led-sup-end" />
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-primary" style="height:36px" id="btn-view-sup-ledger">
+                                <i class="fa fa-eye"></i> View Ledger
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" style="height:36px" id="btn-print-sup-ledger">
+                                <i class="fa fa-print"></i> Print Ledger
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" style="height:36px" id="btn-ledger-pay-sup">
+                                <i class="fa fa-money-bill"></i> Pay Supplier
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container reports-table-container">
+                        <div class="table-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th class="text-right">Payable</th>
+                                    <th>Act</th>
+                                </tr>
+                                </thead>
+                                <tbody id="led-sup"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPENSES -->
+        <div id="expenses" class="view">
+            <div class="row" style="margin-bottom:10px; justify-content:space-between">
+                <h3>Expense Tracker</h3>
+                <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+                    <div>
+                        <label class="small-muted">From</label>
+                        <input type="date" id="exp-start" />
+                    </div>
+                    <div>
+                        <label class="small-muted">To</label>
+                        <input type="date" id="exp-end" />
+                    </div>
+                    <button class="btn btn-sm" id="btn-exp-filter">
+                        <i class="fa fa-filter"></i> Apply
+                    </button>
+                    <button class="toggle-btn" id="toggle-exp-table">
+                        <i class="fa fa-bars"></i> Toggle Expense List
+                    </button>
+                    <button class="btn btn-primary" id="btn-add-exp">
+                        Add Expense
+                    </button>
+                </div>
+            </div>
+            <div class="table-container reports-table-container" id="exp-table-container">
+                <div class="table-scroll">
+                    <table class="table-tight">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th class="text-right">Amount</th>
+                            <th>Act</th>
+                        </tr>
+                        </thead>
+                        <tbody id="exp-body"></tbody>
+                        <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-right">Total Expenses</th>
+                            <th class="text-right" id="exp-total-footer">0.00</th>
+                            <th></th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- BANKING -->
+        <div id="banking" class="view">
+            <div class="row" style="margin-bottom:10px; justify-content:space-between;flex-wrap:wrap">
+                <h3>Banking &amp; Accounts</h3>
+                <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+                    <div>
+                        <label class="small-muted">Select Bank</label>
+                        <select id="bank-selector" style="width:180px"></select>
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-bank">Add Bank</button>
+                    <button class="btn" id="btn-add-bank-tx">
+                        Add Bank Transaction
+                    </button>
+                    <div>
+                        <label class="small-muted">From</label>
+                        <input type="date" id="bank-start" />
+                    </div>
+                    <div>
+                        <label class="small-muted">To</label>
+                        <input type="date" id="bank-end" />
+                    </div>
+                    <button class="btn btn-sm" id="btn-bank-rpt">
+                        <i class="fa fa-eye"></i> View Report
+                    </button>
+                </div>
+            </div>
+            <div class="row" style="gap:10px;height:100%;">
+                <div class="panel col">
+                    <h4>Bank Accounts</h4>
+                    <div class="table-container reports-table-container">
+                        <div class="table-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Bank Name</th>
+                                    <th>Account No</th>
+                                    <th class="text-right">Balance</th>
+                                    <th>Act</th>
+                                </tr>
+                                </thead>
+                                <tbody id="bank-body"></tbody>
+                                <tfoot>
+                                <tr>
+                                    <th colspan="2" class="text-right">Total Balance</th>
+                                    <th class="text-right" id="bank-total-footer">0.00</th>
+                                    <th></th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel col">
+                    <h4>Bank Transactions</h4>
+                    <div class="table-container reports-table-container">
+                        <div class="table-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Bank</th>
+                                    <th>Type</th>
+                                    <th class="text-right">Amount</th>
+                                </tr>
+                                </thead>
+                                <tbody id="bank-tx-body"></tbody>
+                                <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-right">Total Net</th>
+                                    <th class="text-right" id="bank-tx-total-footer">0.00</th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HR (EMPLOYEES) -->
+        <div id="hr" class="view">
+            <div class="panel">
+                <h3>Employees &amp; Attendance</h3>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" id="btn-add-emp">
+                        <i class="fa fa-plus"></i> Add Employee
+                    </button>
+                    <button class="btn" id="btn-mark-att">
+                        <i class="fa fa-check"></i> Mark Attendance
+                    </button>
+                </div>
+                <p class="small-muted">
+                    Manage employees and track attendance.
+                </p>
+                <div style="margin-top:10px; display:flex;gap:8px;flex-wrap:wrap;">
+                    <div>
+                        <label class="small-muted">From</label>
+                        <input type="date" id="att-rpt-start" />
+                    </div>
+                    <div>
+                        <label class="small-muted">To</label>
+                        <input type="date" id="att-rpt-end" />
+                    </div>
+                    <div>
+                        <label class="small-muted">Employee</label>
+                        <select id="att-rpt-emp"></select>
+                    </div>
+                    <button class="btn btn-sm" id="btn-view-att-report">
+                        <i class="fa fa-eye"></i> View
+                    </button>
+                    <button class="btn btn-sm" id="btn-print-att-report">
+                        <i class="fa fa-print"></i> Print
+                    </button>
+                </div>
+                <div style="margin-top:15px;">
+                    <h4>Employee List</h4>
+                    <div class="table-container reports-table-container" style="max-height:250px;">
+                        <div class="table-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Act</th>
+                                </tr>
+                                </thead>
+                                <tbody id="emp-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:15px;">
+                    <h4>Attendance Summary</h4>
+                    <div class="table-container reports-table-container" style="max-height:250px;">
+                        <div class="table-scroll">
+                            <table class="table-tight">
+                                <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th class="text-right">Present</th>
+                                    <th class="text-right">Absent</th>
+                                    <th class="text-right">Late</th>
+                                    <th class="text-right">Leave</th>
+                                </tr>
+                                </thead>
+                                <tbody id="att-rpt-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADVANCE REPORTS -->
+        <div id="adv-report" class="view">
+            <div class="row" style="margin-bottom:10px;justify-content:space-between;flex-wrap:wrap;">
+                <h3>Advance Reporting</h3>
+                <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+                    <div>
+                        <label class="small-muted">From</label>
+                        <input type="date" id="adv-start">
+                    </div>
+                    <div>
+                        <label class="small-muted">To</label>
+                        <input type="date" id="adv-end">
+                    </div>
+                    <div>
+                        <label class="small-muted">Metric</label>
+                        <select id="adv-metric">
+                            <option value="sales">Sales</option>
+                            <option value="profit">Profit</option>
+                            <option value="expense">Expenses</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="small-muted">Group By</label>
+                        <select id="adv-group">
+                            <option value="day">Day</option>
+                            <option value="month">Month</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-sm btn-primary" id="btn-adv-view">
+                        <i class="fa fa-eye"></i> View Graph
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h4>Chart</h4>
+                <div id="adv-chart-container"
+                     style="width:100%;max-width:900px;height:380px;border:1px solid var(--border);
+                            border-radius:6px;padding:10px;overflow:hidden;">
+                    <canvas id="adv-chart" style="width:100%;height:100%;"></canvas>
+                </div>
+                <p class="small-muted">
+                    Sales and profit are taken from saved bills; expenses are taken from the expense tracker.
+                </p>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settings" class="view">
+            <div class="row">
+                <!-- LEFT: COMPANY INFO -->
+                <div class="panel col" style="max-width:600px">
+                    <h3>Company Info (For Bill)</h3>
+                    <div class="field">
+                        <label>Company Name</label>
+                        <input id="set-name" />
+                    </div>
+                    <div class="field">
+                        <label>Address / Phone</label>
+                        <textarea id="set-addr" rows="3"></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label>Business Logo</label>
+                        <input type="file" id="set-logo-file" accept="image/*" />
+                    </div>
+                    <div class="field">
+                        <label>Logo URL (Optional)</label>
+                        <input id="set-logo" placeholder="https://... or data:image/png;base64..." />
+                    </div>
+
+                    <div class="field">
+                        <label>Default tax mode</label>
+                        <select id="set-tax-mode">
+                            <option value="percent">Percentage (per-bill %)</option>
+                            <option value="fixed">Fixed amount</option>
+                        </select>
+                    </div>
+                    <div id="fixed-tax-settings" class="field" style="display:none">
+                        <label>Fixed tax amount</label>
+                        <input type="number" id="set-fixed-tax" value="0" />
+                    </div>
+                    <div class="field">
+                        <label>Default tax % (if percent mode)</label>
+                        <input type="number" id="set-tax-percent" value="0" />
+                    </div>
+
+                    <button class="btn btn-primary" id="btn-save-settings">
+                        <i class="fa fa-save"></i> Save Info
+                    </button>
+                </div>
+
+                <!-- RIGHT: LICENSE + DANGER ZONE -->
+                <div class="panel col" style="max-width:320px;">
+                    <h3>License</h3>
+                    <p class="small-muted">
+                        Enter your license key in the format: RS-TISK-4CGE-YB2C-G3
+                    </p>
+                    <div id="license-settings-box" style="margin-bottom:15px;border:1px solid var(--warn);padding:10px;border-radius:6px;">
+                        <div class="field">
+                            <label>License Key</label>
+                            <input id="license-input" placeholder="e.g. RS-TISK-4CGE-YB2C-G3" />
+                        </div>
+                        <button id="btn-verify-license-from-settings" class="btn btn-primary btn-block">
+                            Verify License
+                        </button>
+                        <small class="small-muted">
+                            This option will disappear once the license is verified.
+                        </small>
+                    </div>
+
+                    <div class="panel" style="border-color:var(--danger);margin-top:10px;">
+                        <h3 class="text-danger" style="margin-top:0;">Danger Zone</h3>
+                        <p>This will wipe all sales, items, and accounts.</p>
+                        <button class="btn btn-danger" id="btn-hard-reset">
+                            <i class="fa fa-warning"></i> HARD RESET (Pass: 1234)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- CUSTOMER SCREEN (MOVABLE & MAXIMIZABLE) -->
+<div id="customer-display" class="hidden customer-screen">
+    <div class="customer-header" id="customer-header">
+        <h3>Customer Screen</h3>
+        <div class="customer-header-buttons">
+            <button class="btn btn-sm" id="btn-maximize-cust-display" title="Maximize">
+                <i class="fa fa-expand"></i>
+            </button>
+            <button class="btn btn-sm" id="btn-close-cust-display" title="Close">×</button>
+        </div>
+    </div>
+    <div class="customer-inner">
+        <div id="cust-d-type" class="cust-block"></div>
+        <div id="cust-d-items" class="cust-block cust-items"></div>
+        <div id="cust-d-summary" class="cust-block"></div>
+        <div id="cust-d-pay" class="cust-block"></div>
+    </div>
+</div>
+
+<!-- GENERIC REPORT MODAL -->
+<div class="modal-overlay" id="m-report">
+    <div class="modal modal-large">
+        <div class="modal-head">
+            <span id="m-report-title">Report View</span>
+            <button class="btn btn-danger" data-close-modal="m-report">X</button>
+        </div>
+        <div id="report-container" class="report-modal-body"></div>
+    </div>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="modal-overlay" id="m-item">
+    <div class="modal">
+        <div class="modal-head">
+            <span id="mi-title">Item Details</span>
+            <button class="btn btn-danger" data-close-modal="m-item">X</button>
+        </div>
+        <input type="hidden" id="mi-id" />
+        <div class="row">
+            <div class="field col">
+                <label>Barcode</label>
+                <input id="mi-code" />
+            </div>
+            <div class="field col">
+                <label>Name</label>
+                <input id="mi-name" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="field col">
+                <label>Cost</label>
+                <input type="number" step="0.01" id="mi-cost" />
+            </div>
+            <div class="field col">
+                <label>Price (Base)</label>
+                <input type="number" step="0.01" id="mi-price" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="field col">
+                <label>Stock (Base)</label>
+                <input type="number" id="mi-stock" />
+            </div>
+            <div class="field col">
+                <label>Low Alert</label>
+                <input type="number" id="mi-alert" value="5" />
+            </div>
+        </div>
+        <div class="field">
+            <label>Location/Shelf</label>
+            <input id="mi-loc" />
+        </div>
+        <div style="border-top:1px solid var(--border); padding-top:5px; margin-top:5px;">
+            <strong>Units &amp; Conversion</strong>
+        </div>
+        <div class="row">
+            <div class="field col">
+                <label>Base Unit</label>
+                <select id="mi-u1"></select>
+            </div>
+            <div class="field col">
+                <label>Alt Unit</label>
+                <select id="mi-u2"></select>
+            </div>
+        </div>
+        <div class="field">
+            <label>Base units in Alt</label>
+            <input type="number" id="mi-conv" value="1" />
+        </div>
+        <button class="btn btn-primary" id="btn-save-item">Save Item</button>
+    </div>
+</div>
+
+<!-- CUSTOMER MODAL -->
+<div class="modal-overlay" id="m-cust">
+    <div class="modal">
+        <div class="modal-head">
+            <span>New Customer</span>
+            <button class="btn btn-danger" data-close-modal="m-cust">X</button>
+        </div>
+        <div class="field">
+            <label>Name</label>
+            <input id="mc-name" />
+        </div>
+        <div class="field">
+            <label>Phone</label>
+            <input id="mc-phone" />
+        </div>
+        <div class="field">
+            <label>Type</label>
+            <select id="mc-type">
+                <option value="Walk-in">Walk-in</option>
+                <option value="Regular">Regular</option>
+                <option value="Wholesale">Wholesale</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Opening Balance (Credit)</label>
+            <input type="number" id="mc-opening" value="0" />
+        </div>
+        <button class="btn btn-primary" id="btn-save-cust">Save</button>
+    </div>
+</div>
+
+<!-- SUPPLIER MODAL -->
+<div class="modal-overlay" id="m-sup">
+    <div class="modal">
+        <div class="modal-head">
+            <span>New Supplier</span>
+            <button class="btn btn-danger" data-close-modal="m-sup">X</button>
+        </div>
+        <div class="field">
+            <label>Name</label>
+            <input id="ms-name" />
+        </div>
+        <div class="field">
+            <label>Phone</label>
+            <input id="ms-phone" />
+        </div>
+        <div class="field">
+            <label>Opening Balance (Payable)</label>
+            <input type="number" id="ms-opening" value="0" />
+        </div>
+        <button class="btn btn-primary" id="btn-save-sup">Save</button>
+    </div>
+</div>
+
+<!-- BANK MODAL -->
+<div class="modal-overlay" id="m-bank">
+    <div class="modal">
+        <div class="modal-head">
+            <span>New Bank</span>
+            <button class="btn btn-danger" data-close-modal="m-bank">X</button>
+        </div>
+        <div class="field">
+            <label>Bank Name</label>
+            <input id="mb-name" />
+        </div>
+        <div class="field">
+            <label>Account No</label>
+            <input id="mb-acc" />
+        </div>
+        <div class="field">
+            <label>Initial Balance</label>
+            <input type="number" id="mb-bal" />
+        </div>
+        <button class="btn btn-primary" id="btn-save-bank">Save</button>
+    </div>
+</div>
+
+<!-- BANK TRANSACTION MODAL -->
+<div class="modal-overlay" id="m-bank-tx">
+    <div class="modal">
+        <div class="modal-head">
+            <span>Bank Transaction</span>
+            <button class="btn btn-danger" data-close-modal="m-bank-tx">X</button>
+        </div>
+        <div class="field">
+            <label>Date</label>
+            <input type="date" id="bt-date" />
+        </div>
+        <div class="field">
+            <label>Bank</label>
+            <select id="bt-bank"></select>
+        </div>
+        <div class="field">
+            <label>Type</label>
+            <select id="bt-type">
+                <option value="Deposit">Deposit</option>
+                <option value="Withdraw">Withdraw</option>
+                <option value="Adjust">Adjust</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Amount</label>
+            <input type="number" id="bt-amt" />
+        </div>
+        <button class="btn btn-primary" id="btn-save-bank-tx">Save</button>
+    </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay" id="m-exp">
+    <div class="modal">
+        <div class="modal-head">
+            <span>New Expense</span>
+            <button class="btn btn-danger" data-close-modal="m-exp">X</button>
+        </div>
+        <div class="field">
+            <label>Date</label>
+            <input type="date" id="me-date" />
+        </div>
+        <div class="field">
+            <label>Category</label>
+            <input id="me-cat" list="dl-exp-cats" />
+            <datalist id="dl-exp-cats">
+                <option value="Rent"></option>
+                <option value="Bills"></option>
+                <option value="Salary"></option>
+                <option value="Maintenance"></option>
+            </datalist>
+        </div>
+        <div class="field">
+            <label>Description</label>
+            <input id="me-desc" />
+        </div>
+        <div class="field">
+            <label>Amount</label>
+            <input type="number" id="me-amt" />
+        </div>
+        <button class="btn btn-primary" id="btn-save-exp">Save</button>
+    </div>
+</div>
+
+<!-- EMPLOYEE MODAL -->
+<div class="modal-overlay" id="m-emp">
+    <div class="modal">
+        <div class="modal-head">
+            <span>Employee</span>
+            <button class="btn btn-danger" data-close-modal="m-emp">X</button>
+        </div>
+        <input type="hidden" id="me-id" />
+        <div class="field">
+            <label>Name</label>
+            <input id="me-name" />
+        </div>
+        <div class="field">
+            <label>Role</label>
+            <input id="me-role" />
+        </div>
+        <button class="btn btn-primary" id="btn-save-emp">Save</button>
+    </div>
+</div>
+
+<!-- ATTENDANCE MODAL -->
+<div class="modal-overlay" id="m-att">
+    <div class="modal">
+        <div class="modal-head">
+            <span>Mark Attendance</span>
+            <button class="btn btn-danger" data-close-modal="m-att">X</button>
+        </div>
+        <div class="field">
+            <label>Date</label>
+            <input type="date" id="att-date" />
+        </div>
+        <div class="field">
+            <label>Employee</label>
+            <select id="att-emp"></select>
+        </div>
+        <div class="field">
+            <label>Status</label>
+            <select id="att-status">
+                <option>Present</option>
+                <option>Absent</option>
+                <option>Late</option>
+                <option>Leave</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Shift</label>
+            <select id="att-shift">
+                <option>Morning</option>
+                <option>Evening</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" id="btn-save-att">Save</button>
+    </div>
+</div>
+
+<!-- CUSTOMER PAYMENT MODAL -->
+<div class="modal-overlay" id="m-cust-pay">
+    <div class="modal">
+        <div class="modal-head">
+            <span>Receive Payment (Customer)</span>
+            <button class="btn btn-danger" data-close-modal="m-cust-pay">X</button>
+        </div>
+        <div class="field">
+            <label>Customer</label>
+            <select id="cp-cust"></select>
+        </div>
+        <div class="field">
+            <label>Date</label>
+            <input type="date" id="cp-date" />
+        </div>
+        <div class="field">
+            <label>Amount</label>
+            <input type="number" id="cp-amt" />
+        </div>
+        <div class="field">
+            <label>Mode</label>
+            <select id="cp-mode">
+                <option value="Cash">Cash</option>
+                <option value="Online">Online/Bank</option>
+            </select>
+        </div>
+        <div class="field cp-bank-row hidden">
+            <label>Bank</label>
+            <select id="cp-bank"></select>
+        </div>
+        <button class="btn btn-primary" id="btn-save-cust-pay">Save</button>
+    </div>
+</div>
+
+<!-- SUPPLIER PAYMENT MODAL -->
+<div class="modal-overlay" id="m-sup-pay">
+    <div class="modal">
+        <div class="modal-head">
+            <span>Pay Supplier</span>
+            <button class="btn btn-danger" data-close-modal="m-sup-pay">X</button>
+        </div>
+        <div class="field">
+            <label>Supplier</label>
+            <select id="sp-sup"></select>
+        </div>
+        <div class="field">
+            <label>Date</label>
+            <input type="date" id="sp-date" />
+        </div>
+        <div class="field">
+            <label>Amount</label>
+            <input type="number" id="sp-amt" />
+        </div>
+        <div class="field">
+            <label>Mode</label>
+            <select id="sp-mode">
+                <option value="Cash">Cash</option>
+                <option value="Online">Online/Bank</option>
+            </select>
+        </div>
+        <div class="field sp-bank-row hidden">
+            <label>Bank</label>
+            <select id="sp-bank"></select>
+        </div>
+        <button class="btn btn-primary" id="btn-save-sup-pay">Save</button>
+    </div>
+</div>
+
+<!-- STARTUP LICENSE/TRIAL MODAL -->
+<div class="modal-overlay" id="m-license-start">
+    <div class="modal">
+        <div class="modal-head">
+            <span>License Activation</span>
+        </div>
+        <p style="margin-bottom:15px;font-size:0.9rem;">
+            Please activate SWAN-ERP Professional Edition to continue.
+        </p>
+        <div class="field">
+            <button id="btn-license-verify-from-start" class="btn btn-primary btn-block">
+                Verify License Key
+            </button>
+        </div>
+        <div class="field">
+            <button id="btn-start-trial" class="btn btn-block">
+                Start 3-Day Trial
+            </button>
+            <small class="small-muted">
+                Trial lets you use all features except bill printing.
+            </small>
+        </div>
+    </div>
+</div>
+
+<div id="print-zone"></div>
+<script src="script.js"></script>
+</body>
+</html>
